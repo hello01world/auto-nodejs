@@ -1,0 +1,22 @@
+{
+  "name": "node-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node  bin/www.js",
+    "start": "./node_modules/.bin/nodemon bin/www.js -i ./public",
+    "prd": "pm2 start bin/www.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ejs": "~2.3.3",
+    "koa": "^2.2.0",
+    "koa-bodyparser": "^3.2.0",
+    "koa-router": "^7.1.1",
+    "koa-static": "^3.0.0",
+    "koa-views": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.8.1"
+  }
+}

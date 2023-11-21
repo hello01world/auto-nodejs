@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+</head>
+
+<body>
+  <h1>auto-nodejs</h1>
+
+  <h3>json</h3>
+  <button id="genAutoNodejsJson">genAutoNodejsJson</button>
+
+  <h3>log</h3>
+  <a href="/api/logs/auto-nodejs.log">schedule.log</a>
+
+  <h3>bin</h3>
+  <div id="nodejsResMsg"></div>
+
+  <script>
+    let hostUrl = 'http://localhost'
+    // genAutoNodejsJson
+    document.getElementById('genAutoNodejsJson').onclick = function () {
+      fetch(`${hostUrl}/api/auto-nodejs/read-folder/read-folder-bin`, {
+        method: 'get',
+        headers: {
+          'content-type': 'application/json'
+        },
+      }).then(response => { if (response.ok) { return response.json() } })
+        .then(data => {
+          console.log('Success:', JSON.stringify(data));
+          let str = ''
+          str += `<div>status:${data.status}</div>`
+          str += `<div>code:${data.code}</div>`
+          str += `<div>msg:${data.msg}</div>`
+          str += `<div>stdout:${data.stdout.replace(/\n/g, '<br>')}</div>`
+          document.getElementById('nodejsResMsg').innerHTML = str;
+          alert('生成成功')
+          window.location.reload()
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          document.getElementById('nodejsResMsg').innerHTML = JSON.stringify(error);
+        });
+
+    }
+
+    // get auto-nodejs.json
+    fetch(`${hostUrl}/api/auto-nodejs/auto-nodejs.json`, {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json'
+      },
+    }).then(response => {
+      if (response.ok) { return response.json() }
+    })
+      .then(data => {
+        console.log('Success:', data);
+        let files = data.data;
+        let html = ''
+
+        files.forEach(item => {
+          html += `<h5>${item.name}</h5>`
+          if (item.children && item.children.length > 0) {
+            item.children.forEach(subItem => {
+              let moduleFile = subItem.name.replace('.js', '')
+              html += `<button id="${moduleFile}">${subItem.name}</button>`
+
+            })
+          }
+        })
+        document.body.insertAdjacentHTML('beforeend', html);
+
+        // 点击触发事件
+        files.forEach(item => {
+          if (item.children && item.children.length > 0) {
+            let module = item.name
+            item.children.forEach(subItem => {
+              let moduleFile = subItem.name.replace('.js', '')
+              document.getElementById(moduleFile).onclick = function () {
+                document.getElementById('nodejsResMsg').innerHTML = 'running......';
+                fetch(`${hostUrl}/api/auto-nodejs/${module}/${moduleFile}`, {
+                  method: 'get',
+                  headers: {
+                    'content-type': 'application/json'
+                  },
+                }).then(response => { if (response.ok) { return response.json() } })
+                  .then(data => {
+                    console.log('Success:', JSON.stringify(data));
+                    let str = ''
+                    str += `<div>status:${data.status}</div>`
+                    str += `<div>code:${data.code}</div>`
+                    str += `<div>msg:${data.msg}</div>`
+                    str += `<div>stdout:${data.stdout.replace(/\n/g, '<br>')}</div>`
+                    document.getElementById('nodejsResMsg').innerHTML = str;
+                  })
+                  .catch((error) => {
+                    console.error('Error:', error);
+                    document.getElementById('nodejsResMsg').innerHTML = JSON.stringify(error);
+                  });
+              }
+            })
+          }
+        })
+      }).catch((error) => {
+        console.error('Error:', error);
+      });
+  </script>
+</body>
+
+</html>
